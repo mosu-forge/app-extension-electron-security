@@ -18,13 +18,17 @@ On the main process:
 Once installed, in your `electron-main.js` file, create a new window like this:
 
 ```javascript
-mainWindow = new BrowserWindow(
-  SecureWindow({
-    width: 1000,
-    height: 600,
-    useContentSize: true,
-  })
-)
+import { SecureWindow } from "SecureWindow"
+
+function createWindow () {
+  mainWindow = new BrowserWindow(
+    SecureWindow({
+      width: 1000,
+      height: 600,
+      useContentSize: true,
+    })
+  )
+}
 ```
 
 The `SecureWindow` function will inject the `nodeIntegration: false` setting as well as the preload script bundled with this App Extension. As of now you cannot yet run your own preload script.
@@ -45,6 +49,7 @@ Quasar CLI will retrieve it from NPM and install the extension.
 
 The extension will ask:
 > Inject Electron into Render Process?
+
 If you select this option, the electron module will be re-injected at `Vue.prototype.$q.electron` else it will be null.
 
 # Uninstall
