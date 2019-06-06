@@ -1,9 +1,17 @@
-//window.__statics = require("path").join(__dirname, "statics").replace(/\\\\/g, "\\\\")
+const { ipcRenderer } = require("electron")
 
 require = null
 
+ipcRenderer.on("P_STATIC", (event, message) => {
+    window.__statics = message
+})
+
+ipcRenderer.on("P_ANSWER", (event, message) => {
+    window.postMessage({ type: "P_ANSWER", message }, document.defaultView.location.origin)
+})
+
 window.addEventListener("message", (event) => {
     if(event.source == window && event.data.type && event.data.type == "P_MESSAGE") {
-        window.postMessage({ type: "P_ANSWER", text: "testing123" }, "*")
+        ipcRenderer.send("P_MESSAGE", event.data.message)
     }
-}, false)
+}, true)

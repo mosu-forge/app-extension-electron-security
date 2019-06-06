@@ -23,9 +23,9 @@ module.exports = function (api) {
         }
     })
     api.extendQuasarConf((cfg, api) => {
-        // if(api.ctx.modeName == "electron") {
-        //     cfg.build.transpileDependencies.push(/quasar-app-extension-electron-security[\\/]src[\\/]boot/)
-        //     cfg.boot.push("~quasar-app-extension-electron-security/src/boot/inject-electron.js")
-        // }
+        if(api.ctx.modeName == "electron") {
+            cfg.build.transpileDependencies.push(/quasar-app-extension-electron-security[\\/]src[\\/]boot/)
+            cfg.boot.push("~quasar-app-extension-electron-security/src/boot/secure-communication.js")
+        }
     })
 }

@@ -1,26 +1,42 @@
-import { SecureWindow } from "."
+import { SecureConfig } from "."
 
-export default function AppHarden(app) {
+export default function AppHarden(app, cfg) {
 
-    app.enableSandbox()
+    cfg = {
+        sandbox: true,
+        preventWebview: true,
+        preventNavigate: true,
+        preventNewWindow: true,
+        ...cfg
+    }
+
+    if(cfg.sandbox) {
+        app.enableSandbox()
+    }
 
     app.on("web-contents-created", (event, contents) => {
         contents.on("will-attach-webview", (event, webPreferences, params) => {
 
-            webPreferences = SecureWindow({ webPreferences }).webPreferences
+            webPreferences = SecureConfig({ webPreferences }).webPreferences
 
             delete webPreferences.preload
             delete webPreferences.preloadURL
 
-            event.preventDefault()
+            if(cfg.preventWebview) {
+                event.preventDefault()
+            }
         })
         contents.on("will-navigate", (event, navigationUrl) => {
-            console.log("ElectronSecurity: Blocked will-navigate:", navigationUrl)
-            event.preventDefault()
+            if(cfg.preventNavigate) {
+                console.log("ElectronSecurity: Blocked will-navigate:", navigationUrl)
+                event.preventDefault()
+            }
         })
         contents.on("new-window", (event, navigationUrl) => {
-            console.log("ElectronSecurity: Blocked new-window:", navigationUrl)
-            event.preventDefault()
+            if(cfg.preventNewWindow) {
+                console.log("ElectronSecurity: Blocked new-window:", navigationUrl)
+                event.preventDefault()
+            }
         })
     })
 
