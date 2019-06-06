@@ -1,38 +1,120 @@
-Quasar Electron Security (alpha-1)
+Quasar Electron Security (alpha-2)
 ===
 
-This extension is created in an effort to run `nodeIntegration: false` with Quasar. As of now it is only a proof of concept and is not ready for production use.
+This extension is created in an effort to improve security for Electron apps with Quasar. Notably, it disables `nodeIntegration` and changes the webpack target from `electron-render` to `web`. This means that you cannot use the `remote` module on the frontend, and must use the newly introduced `SecureCommunication` function to pass messages between the render and main process.
 
-It works by modifying some webpack options.
+If your app does heavy IPC calls (whether custom or via remote module) then you will have to restructure how that works in order to use this app extension.
 
-On the render process:
-- Replaces the require("electron") with an empty module
-- Changes the target to "web"
-- Removes the "html-addons" webpack plugin created by Quasar.
+## SecureWindow
 
-On the main process:
-- Adds a preload script to the main window that only exposes what is necessary for your application
-
-# Usage
-
-Once installed, in your `electron-main.js` file, create a new window like this:
+Instead of calling `new BrowserWindow`, call this helper function to create new windows with more secure webPreferences settings. This function will also inject a preload script that sets up secure communications. As of this version, it does not allow you to set your own preload script.
 
 ```javascript
-import { SecureWindow } from "SecureWindow"
-
-function createWindow () {
-  mainWindow = new BrowserWindow(
-    SecureWindow({
-      width: 1000,
-      height: 600,
-      useContentSize: true,
-    })
-  )
+webPreferences: {
+    sandbox: true,
+    nodeIntegration: false,
+    nodeIntegrationInWorker: false,
+    nodeIntegrationInSubFrames: false,
+    enableRemoteModule: false,
+    contextIsolation: true
 }
 ```
 
-The `SecureWindow` function will inject the `nodeIntegration: false` setting as well as the preload script bundled with this App Extension. As of now you cannot yet run your own preload script.
+## SecureCommunication
 
+Since `nodeIntegration` is turned off and `contextIsolation` is turned on, traditional usage of `ipcRenderer` will not work. Instead, a `SecureCommunication` function is introduced to both the main and render process that uses `window.postMessage()` to pass messages. See later section for examples of usage.
+
+## AppHarden
+
+This function for now is basic, but allows you to apply some common settings to your electron app that do things such as preventing new windows from spawning, or navigating away from your app.
+
+# Usage
+
+## Main Process
+
+Once installed, you can use these new functions in your `electron-main.js` file.
+
+```javascript
+import { app, BrowserWindow } from 'electron'
+
+/** Import from Electron Security **/
+import { AppHarden, SecureWindow, SecureCommunication } from 'ElectronSecurity'
+
+if (process.env.PROD) {
+    global.__statics = require('path').join(__dirname, 'statics').replace(/\\/g, '\\\\')
+}
+
+let mainWindow, mainCommunication
+
+function createWindow () {
+
+    /**
+     * Instead of `new BrowserWindow` we use `SecureWindow`
+     * Notice the lack of `new` keyword. This function will return a BrowserWindow
+     * so you can use loadURL and other methods in the same fashion
+     **/
+    mainWindow = SecureWindow({
+        width: 1000,
+        height: 600,
+        useContentSize: true,
+    })
+
+    /**
+     * Call the `SecureCommunication` function with the mainWindow created above
+     * This object allows you to communicate securely with the browser contents
+     **/
+    mainCommunication = SecureCommunication(mainWindow)
+
+    mainCommunication.on('message', message => {
+        console.log(message)
+        mainCommunication.send('PONG')
+    })
+
+    mainWindow.loadURL(process.env.APP_URL)
+    mainWindow.openDevTools()
+
+    mainWindow.on('closed', () => {
+        mainWindow = null
+    })
+}
+
+/**
+ * Call this function to harden your app's permissions
+ * The default options are shown below
+**/
+AppHarden(app, {
+    sandbox: true,
+    preventWebview: true,
+    preventNavigate: true,
+    preventNewWindow: true,
+})
+
+app.on('ready', createWindow)
+
+app.on('window-all-closed', () => {
+    if (process.platform !== 'darwin') {
+        app.quit()
+    }
+})
+
+app.on('activate', () => {
+    if (mainWindow === null) {
+        createWindow()
+    }
+})
+```
+
+## Render Process
+
+In a component, boot file, or other script in the render process, you can listen and send messages like this:
+
+```javascript
+this.$q.SecureCommunication.on("message", message => {
+    console.log(message)
+})
+
+this.$q.SecureCommunication.send("PING")
+```
 
 # Install
 ```bash
@@ -44,13 +126,6 @@ yarn add mosu-forge/app-extension-electron-security
 quasar ext invoke electron-security
 ```
 Quasar CLI will retrieve it from NPM and install the extension.
-
-## Prompts
-
-The extension will ask:
-> Inject Electron into Render Process?
-
-If you select this option, the electron module will be re-injected at `Vue.prototype.$q.electron` else it will be null.
 
 # Uninstall
 ```bash
