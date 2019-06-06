@@ -1,7 +1,9 @@
-const electron = require("electron")
+//window.__statics = require("path").join(__dirname, "statics").replace(/\\\\/g, "\\\\")
 
-//require("module").globalPaths.push("${appPaths.resolve.app("node_modules").replace(/\\/g, "\\\\")}")
+require = null
 
-window.__statics = require("path").join(__dirname, "statics").replace(/\\\\/g, "\\\\")
-
-window.electron = electron
+window.addEventListener("message", (event) => {
+    if(event.source == window && event.data.type && event.data.type == "P_MESSAGE") {
+        window.postMessage({ type: "P_ANSWER", text: "testing123" }, "*")
+    }
+}, false)
