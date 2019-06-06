@@ -15,6 +15,6 @@ class SecureCommunication extends EventEmitter {
 }
 
 
-export default ({ Vue }) => {
-    Vue.prototype.$q.SecureCommunication = new SecureCommunication()
+export default ({ app, Vue }) => {
+    app.SecureCommunication = Vue.prototype.$q.SecureCommunication = new SecureCommunication()
 }
