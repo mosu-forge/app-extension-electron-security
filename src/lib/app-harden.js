@@ -1,4 +1,4 @@
-import { SecureConfig } from "."
+import { SecureConfig } from "./secure-window"
 
 export default function AppHarden(app, cfg) {
 
