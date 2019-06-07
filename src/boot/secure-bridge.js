@@ -1,6 +1,6 @@
 import EventEmitter from "events"
 
-class SecureCommunication extends EventEmitter {
+class SecureBridge extends EventEmitter {
     constructor() {
         super()
         window.addEventListener("message", (event) => {
@@ -16,5 +16,5 @@ class SecureCommunication extends EventEmitter {
 
 
 export default ({ app, Vue }) => {
-    app.SecureCommunication = Vue.prototype.$q.SecureCommunication = new SecureCommunication()
+    app.SecureBridge = Vue.prototype.$q.SecureBridge = new SecureBridge()
 }

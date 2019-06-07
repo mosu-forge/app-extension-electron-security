@@ -2,10 +2,10 @@ import { ipcMain } from "electron"
 import EventEmitter from "events"
 
 export default function(window) {
-    return new SecureCommunication(window)
+    return new SecureBridge(window)
 }
 
-class SecureCommunication extends EventEmitter {
+class SecureBridge extends EventEmitter {
     constructor(window) {
         super()
         this.window = window
