@@ -28,14 +28,15 @@ mainWindow = new BrowserWindow({
         nodeIntegrationInWorker: false,
         nodeIntegrationInSubFrames: false,
         enableRemoteModule: false,
-        contextIsolation: true
+        contextIsolation: true,
+        preload: require('path').resolve(__dirname, 'preload.js')
     }
 })
 ```
 
 ## SecureBridge
 
-Since `nodeIntegration` is turned off and `contextIsolation` is turned on, traditional usage of `ipcRenderer` will not work. Instead, a `SecureBridge` class is introduced to both the main and render process that uses `window.postMessage()` to pass messages. There are two methods that can be used in both the main and render process: `send` and `sendPromise`. See usage section for more details.
+Since `nodeIntegration` is turned off and `contextIsolation` is turned on, traditional usage of `ipcRenderer` and `ipcMain` will not work. Instead, a `SecureBridge` class is introduced to both the main and render process that uses the preload script to pass messages. There are two methods that can be used in both the main and render process: `send` and `sendPromise`. See usage section for more details.
 
 ## AppHarden
 
