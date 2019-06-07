@@ -1,6 +1,6 @@
 {
   "name": "quasar-app-extension-electron-security",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Enhance Electron Security with Quasar",
   "author": "mosu forge <mosu.forge@protonmail.com>",
   "license": "MIT",
@@ -10,10 +10,10 @@
   },
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/mosu-forge/app-extension-electron-security.git"
   },
-  "bugs": "",
-  "homepage": "",
+  "bugs": "https://github.com/mosu-forge/app-extension-electron-security/issues",
+  "homepage": "https://github.com/mosu-forge/app-extension-electron-security",
   "engines": {
     "node": ">= 8.9.0",
     "npm": ">= 5.6.0",
