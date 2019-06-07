@@ -18,7 +18,8 @@ export function SecureConfig(cfg) {
 export default function SecureWindow(cfg) {
     const window = new BrowserWindow(SecureConfig(cfg))
     window.webContents.on("dom-ready", () => {
-        window.send("P_STATIC", require("path").join(__dirname, "statics").replace(/\\\\/g, "\\\\"))
+        // TODO this is likely sending the wrong path
+        window.send("P_SET_STATICS_DIR", require("path").join(__dirname, "statics").replace(/\\\\/g, "\\\\"))
     })
     return window
 }

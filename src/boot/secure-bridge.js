@@ -8,12 +8,14 @@ class SecureBridge extends EventEmitter {
         window.addEventListener("message", (event) => {
             if(event.source == window && event.data.type && event.data.type == "P_MESSAGE_RENDER") {
                 this.receive(event.data)
-                //this.emit("message", event.data.message)
             }
         }, false)
     }
     receive(data) {
         switch(data.subtype) {
+            case "P_SET_STATICS_DIR":
+                window.__statics = data.path
+                break
             case "PROMISE_RENDER":
                 if(data.id && this.promises.has(data.id)) {
                     if(data.status == "RESOLVE") {
